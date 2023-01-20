@@ -33,27 +33,33 @@
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
 
-    <script>
         // Your web app's Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyBMgamRJJn2ti_mdtmJA_7COG_0pbskK3o",
-            authDomain: "eshop-a4b2d.firebaseapp.com",
-            projectId: "eshop-a4b2d",
-            storageBucket: "eshop-a4b2d.appspot.com",
-            messagingSenderId: "14661348960",
-            appId: "1:14661348960:web:56475cea7f2e0dbc859d05",
-            measurementId: "G-6M85FSWDB6"
+        const firebaseConfig = {
+            apiKey: "AIzaSyCS_jnYg6wvN7U-PdKS5vKTd2S3WQtC4UU",
+            authDomain: "eshop-87b44.firebaseapp.com",
+            projectId: "eshop-87b44",
+            storageBucket: "eshop-87b44.appspot.com",
+            messagingSenderId: "687764140981",
+            appId: "1:687764140981:web:7b384a3b9543b26e791ffc",
+            measurementId: "G-2XV3SFFF84"
         };
+
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
 
         const messaging = firebase.messaging();
 
         function initFirebaseMessagingRegistration() {
             messaging.requestPermission()
                 .then(function () {
-                    return messaging.getToken()
+                    var token = messaging.getToken()
+                    console.log(token);
                 })
                 .then(function (token) {
                     axios.post("{{ route('store.token') }}", {
