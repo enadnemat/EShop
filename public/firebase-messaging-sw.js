@@ -2,13 +2,13 @@ importScripts('https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.3.2/firebase-messaging.js');
 
 firebase.initializeApp({
-    apiKey: "AIzaSyBMgamRJJn2ti_mdtmJA_7COG_0pbskK3o",
-    projectId: "eshop-a4b2d",
-    messagingSenderId: "14661348960",
-    appId: "1:14661348960:web:56475cea7f2e0dbc859d05",
+    apiKey: "AIzaSyCS_jnYg6wvN7U-PdKS5vKTd2S3WQtC4UU",
+    projectId: "eshop-87b44",
+    messagingSenderId: "687764140981",
+    appId: "1:687764140981:web:7b384a3b9543b26e791ffc",
 });
 
 const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(function ({data: {title, body, icon}}) {
-    return self.registration.showNotification(title, {body, icon});
+messaging.setBackgroundMessageHandler(function({data:{title,body,icon}}) {
+    return self.registration.showNotification(title,{body,icon});
 });

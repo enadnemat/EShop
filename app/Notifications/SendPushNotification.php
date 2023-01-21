@@ -24,7 +24,7 @@ class SendPushNotification extends Notification
     public function __construct($title, $message, $fcmTokens)
     {
         $this->title = $title;
-        $this->message = $message;
+        $this->body = $body;
         $this->fcmTokens = $fcmTokens;
     }
 
@@ -43,7 +43,7 @@ class SendPushNotification extends Notification
     {
         return (new FirebaseMessage)
             ->withTitle($this->title)
-            ->withBody($this->message)
+            ->withBody($this->body)
             ->withPriority('high')->asMessage($this->fcmTokens);
     }
 }

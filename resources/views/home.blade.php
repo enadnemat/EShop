@@ -31,13 +31,14 @@
         </div>
     </div>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js";
+    <component src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></component>
+    <component src="https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging.js"></component>
 
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+    https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script type="module">
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCS_jnYg6wvN7U-PdKS5vKTd2S3WQtC4UU",
@@ -56,32 +57,29 @@
         const messaging = firebase.messaging();
 
         function initFirebaseMessagingRegistration() {
-            messaging.requestPermission()
-                .then(function () {
-                    var token = messaging.getToken()
-                    console.log(token);
-                })
-                .then(function (token) {
-                    axios.post("{{ route('store.token') }}", {
-                        _method: "PATCH",
-                        token
-                    }).then(({data}) => {
-                        console.log(data)
-                    }).catch(({response: {data}}) => {
-                        console.error(data)
-                    })
-                }).catch(function (err) {
-                console.log(`Token Error :: ${err}`);
-            });
-        }
+        messaging.requestPermission().then(function () {
+            return messaging.getToken()
+        }).then(function(token) {
 
-        messaging.onMessage(function (payload) {
-            const noteTitle = payload.notification.title;
-            const noteOptions = {
-                body: payload.notification.body,
-                icon: payload.notification.icon,
-            };
-            new Notification(noteTitle, noteOptions);
+            axios.post("{{ route('store.token') }}",{
+                method:"post",
+                token
+            }).then(({data})=>{
+                console.log(data)
+            }).catch(({response:{data}})=>{
+                console.error(data)
+            })
+
+        }).catch(function (err) {
+            console.log(`Token Error :: ${err}`);
         });
+    }
+
+    initFirebaseMessagingRegistration();
+
+    messaging.onMessage(function({data:{body,title}}){
+        new Notification(title, {body});
+    });
+
     </script>
 @endsection
