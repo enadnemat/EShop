@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Kutia\Larafirebase\Facades\Larafirebase;
 use App\Notifications\SendPushNotification;
 use Notification;
+use function GuzzleHttp\Promise\all;
 
 
 class NotificationController extends Controller
@@ -23,38 +24,55 @@ class NotificationController extends Controller
     public function updateDeviceToken(Request $request)
     {
         dd($request->all());
+        Auth::user()->device_token = $request->token;
+        Auth::user()->save();
 
-        auth()->user()->update(['device_token' => $request->token]);
-        return response()->json(['token saved successfully.']);
+        return response()->json(['Token successfully stored.']);
     }
 
     public function sendNotification(Request $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'body' => 'required'
-        ]);
 
-        try {
-            $fcmTokens = User::whereNotNull('device_token')->pluck('device_token')->all();
+        $url = 'https://fcm.googleapis.com/fcm/send';
 
-            //Notification::send(null,new SendPushNotification($request->title,$request->message,$fcmTokens));
+        $FcmToken = User::whereNotNull('device_token')->pluck('device_token')->all();
 
-            /* or */
+        $serverKey = 'AAAAoCHv87U:APA91bHJfNLaJvaZhSiDZiJBd0TpQQJoVA1rD1-z8jW54Td7zlfxXaYGVGuVzGhH1ap1PvF1OsEH7QfgwL4O-5gof6RlJxYGwU3vQ5CJOc0J6J2uaWAAxEFU8E_XvjXohc9x2Ee6Nldy'; // ADD SERVER KEY HERE PROVIDED BY FCM
 
-            //auth()->user()->notify(new SendPushNotification($title,$message,$fcmTokens));
+        $data = [
+            "registration_ids" => $FcmToken,
+            "notification" => [
+                "title" => $request->title,
+                "body" => $request->body,
+            ]
+        ];
+        $encodedData = json_encode($data);
 
-            /* or */
+        $headers = [
+            'Authorization:key=' . $serverKey,
+            'Content-Type: application/json',
+        ];
 
-            Larafirebase::withTitle($request->title)
-                ->withBody($request->body)
-                ->sendMessage($fcmTokens);
+        $ch = curl_init();
 
-            return redirect()->back()->with('success', 'Notification Sent Successfully!!');
-
-        } catch (\Exception $e) {
-            report($e);
-            return redirect()->back()->with('error', 'Something goes wrong while sending notification.');
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        // Disabling SSL Certificate support temporarly
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
+        // Execute post
+        $result = curl_exec($ch);
+        if ($result === FALSE) {
+            die('Curl failed: ' . curl_error($ch));
         }
+        // Close connection
+        curl_close($ch);
+        // FCM response
+        dd($result);
     }
+
 }

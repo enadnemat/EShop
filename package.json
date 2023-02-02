@@ -18,7 +18,7 @@
     },
     "dependencies": {
         "dropzone": "^6.0.0-beta.2",
-        "firebase": "^9.15.0",
+        "firebase": "^9.16.0",
         "gentelella": "^1.4.0"
     }
 }

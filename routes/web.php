@@ -11,6 +11,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/store-token', [\App\Http\Controllers\User\NotificationController::class, 'updateDeviceToken'])->name('store.token');
     Route::post('/send-web-notification', [\App\Http\Controllers\User\NotificationController::class, 'sendNotification'])->name('send.web-notification');
 });
+
 Route::group(['prefix' => 'eshop'], function () {
 
     Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('user.index');
