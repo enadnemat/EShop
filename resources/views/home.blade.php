@@ -3,9 +3,6 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                    <button class="btn btn-danger btn-flat" name="token" onclick="initFirebaseMessagingRegistration()">
-                        Allow notification
-                    </button>
                 <div class="card mt-3">
                     <div class="card-body">
                         @if (session('success'))
@@ -32,14 +29,16 @@
     </div>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <component src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></component>
-    <component src="https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging.js"></component>
-
-    <!-- TODO: Add SDKs for Firebase products that you want to use
-    https://firebase.google.com/docs/web/setup#available-libraries -->
 
     <script type="module">
-        // Your web app's Firebase configuration
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/9.6.2/firebase-app.js";
+        import {
+            getMessaging,
+            onMessage,
+            getToken
+        } from "https://www.gstatic.com/firebasejs/9.6.2/firebase-messaging.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCS_jnYg6wvN7U-PdKS5vKTd2S3WQtC4UU",
             authDomain: "eshop-87b44.firebaseapp.com",
@@ -49,37 +48,58 @@
             appId: "1:687764140981:web:7b384a3b9543b26e791ffc",
             measurementId: "G-2XV3SFFF84"
         };
-
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-
-        const messaging = firebase.messaging();
-
-        function initFirebaseMessagingRegistration() {
-        messaging.requestPermission().then(function () {
-            return messaging.getToken()
-        }).then(function(token) {
-
-            axios.post("{{ route('store.token') }}",{
-                method:"post",
-                token
-            }).then(({data})=>{
-                console.log(data)
-            }).catch(({response:{data}})=>{
-                console.error(data)
-            })
-
-        }).catch(function (err) {
-            console.log(`Token Error :: ${err}`);
+        const messaging = getMessaging();
+        getToken(messaging, {
+            vapidKey: 'BARvy-m9iBj2a6yf_SSPfqUVmzSPQDkSt2tKXSVoA2al3iskPwXntl4e20qqK1yOI8a9ij5K_M5VR4zQ9_JGDbs'
+        }).then((currentToken) => {
+            if (currentToken) {
+            } else {
+                console.log('No registration token available. Request permission to generate one.');
+            }
+        }).catch((err) => {
+            console.log('An error occurred while retrieving token. ', err);
         });
-    }
+        onMessage(function (payload) {
+            const title = payload.notification.title;
+            const options = {
+                body: payload.notification.body,
+                icon: payload.notification.icon,
+            };
+            new Notification(title, options);
+        });
 
-    initFirebaseMessagingRegistration();
+        function startFCM() {
+            messaging
+                .requestPermission()
+                .then(function () {
+                    return messaging.getToken()
+                })
+                .then(function (response) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        url: '{{ route("store.token") }}',
+                        type: 'POST',
+                        data: {
+                            token: response
+                        },
+                        dataType: 'JSON',
+                        success: function (response) {
+                            alert('Token stored.');
+                        },
+                        error: function (error) {
+                            alert(error);
+                        },
+                    });
+                }).catch(function (error) {
+                alert(error);
+            });
+        }
 
-    messaging.onMessage(function({data:{body,title}}){
-        new Notification(title, {body});
-    });
 
     </script>
 @endsection
