@@ -37,7 +37,7 @@ class NotificationController extends Controller
 
         $FcmToken = User::whereNotNull('device_token')->pluck('device_token')->all();
 
-        $serverKey = 'AAAAoCHv87U:APA91bHJfNLaJvaZhSiDZiJBd0TpQQJoVA1rD1-z8jW54Td7zlfxXaYGVGuVzGhH1ap1PvF1OsEH7QfgwL4O-5gof6RlJxYGwU3vQ5CJOc0J6J2uaWAAxEFU8E_XvjXohc9x2Ee6Nldy'; // ADD SERVER KEY HERE PROVIDED BY FCM
+        $serverKey = '---------'; // ADD SERVER KEY HERE PROVIDED BY FCM
 
         $data = [
             "registration_ids" => $FcmToken,
